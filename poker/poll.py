@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 
 url = "https://www.pokernow.club/games/-krRhj-L9FWLOl9i4s6dRXV3A/log"
-cookie = "Cookie: _ga=GA1.2.1176765859.1584321546; npt=F7sKki9AUbSETJP6YfkMDRamCJ0SSyp0dG_aPNNpseuWt0C5_P; _gid=GA1.2.854668923.1585346561; io=nBC-yBmNIAlzApOeAJxk"
+cookie = "Cookie: _ga=GA1.2.1176765859.1584321546; npt=i5tqf_LyrAtRXYGADyFKqewVVCrA6_31WxJRWimIW6GILh-Gjs; _gid=GA1.2.1182764500.1585870712; AWSALB=/LPgadMcRMvsN1FforoanpDsJ6cAq7qUdAYLbvZ3eyxRCOM+pffeleRWHiZVWaiTmAUpr43EQFB+hg3VlAPaDIvyiLsuIAIsm/OogDqHNtCtGO5rbvYVvboRgXzr; AWSALBCORS=/LPgadMcRMvsN1FforoanpDsJ6cAq7qUdAYLbvZ3eyxRCOM+pffeleRWHiZVWaiTmAUpr43EQFB+hg3VlAPaDIvyiLsuIAIsm/OogDqHNtCtGO5rbvYVvboRgXzr; io=mGOgP9BTjgAzgSCCADJ2"
 
 
 def parse(msg, players):
@@ -28,7 +28,7 @@ def parse(msg, players):
         new = int(m.group(4))
         add_on = new - starting
         if player in players:
-            players[player] = players[player] - add_on
+            players[player] = players[player] + add_on
         else:
             players[player] = add_on
     elif "The admin approved the player" in msg:
@@ -36,7 +36,7 @@ def parse(msg, players):
         player = m.group(1)
         add_on = int(m.group(3))
         if player in players:
-            players[player] = players[player] - add_on
+            players[player] = players[player] + add_on
         else:
             players[player] = add_on
     elif "quits the game with a stack of" in msg:
@@ -44,21 +44,21 @@ def parse(msg, players):
         player = m.group(1)
         minus = int(m.group(3))
         if player in players:
-            players[player] = players[player] + minus
+            players[player] = players[player] - minus
         else:
-            players[player] = + minus
+            players[player] = +minus
 
 
 def poll():
     # initial state
-    with open('data/latest.json') as f:
+    with open("data/latest.json") as f:
         players = json.load(f)
 
     while True:
-        logs = requests.get(url, headers={'Cookie': cookie})
+        logs = requests.get(url, headers={"Cookie": cookie})
         logs_df = pd.DataFrame(logs.json()["logs"])
 
-        with open('data/latest.json') as f:
+        with open("data/latest.json") as f:
             latest_data = json.load(f)
             if "from" in latest_data:
                 latest_date = latest_data.get("from")
@@ -75,9 +75,9 @@ def poll():
         if latest_data != players:
             file_name = datetime.today().strftime("%Y-%d-%m__%H-%M-%S")
             players["from"] = logs_df.iloc[0]["at"]
-            with open('data/%s.json' % file_name, 'w') as f:
+            with open("data/%s.json" % file_name, "w") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
-            with open('data/latest.json', 'w') as f:
+            with open("data/latest.json", "w") as f:
                 json.dump(players, f, ensure_ascii=False, indent=4)
 
         time.sleep(5)
